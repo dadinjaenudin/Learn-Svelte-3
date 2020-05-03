@@ -1614,8 +1614,41 @@ img{
         width: 50%;
     }
 </style>
-
 ```
+```javascript=
+// App.sevlet
+<script>
+  let githubRepoInfoPromise;
+  let repoName = 'mikenikles/ghost-v3-google-cloud-storage';
+
+  const loadRepoInfo = async () => {
+    const response = await fetch(`https://api.github.com/repos/${repoName}`);
+    if (response.status === 200) {
+      return await response.json();
+    } else {
+      throw new Error(response.statusText);
+    }
+  }
+	
+  const handleClick = () => {
+    githubRepoInfoPromise = loadRepoInfo();
+  }
+</script>
+
+<input type="text" placeholder="user/repo" bind:value={repoName} />
+<button on:click={handleClick}>
+  load Github repo info
+</button>
+
+{#await githubRepoInfoPromise}
+  <p>...loading</p>
+{:then apiResponse}
+  <p>{apiResponse ? `${apiResponse.full_name} is written in ${apiResponse.language}` : ''}</p>
+{:catch error}
+  <p style="color: red">{error.message}</p>
+{/await}
+```
+
 #### 03 - onDestroy Demo
 ```javascript=
 // App.svelte
